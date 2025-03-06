@@ -1,5 +1,12 @@
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { StyleSheet, View, useWindowDimensions, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  useWindowDimensions,
+  TouchableOpacity,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
 import { Video as VideoType } from '@/types/Video';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,9 +14,11 @@ import { Ionicons } from '@expo/vector-icons';
 export default function GenericLearningVideoContainer({
   video,
   scale,
+  style,
 }: {
   video: VideoType;
   scale: number;
+  style?: StyleProp<ViewStyle>;
 }) {
   const { width: windowWidth } = useWindowDimensions();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -27,7 +36,7 @@ export default function GenericLearningVideoContainer({
   };
 
   return (
-    <View style={styles.contentContainer}>
+    <View style={[styles.contentContainer, style]}>
       <View style={[styles.videoContainer, { width: containerWidth }]}>
         <VideoView style={styles.video} player={player} allowsFullscreen allowsPictureInPicture />
 

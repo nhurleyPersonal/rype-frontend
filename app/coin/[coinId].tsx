@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, Animated, TouchableOpacity, SafeAreaView } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme';
 import { Theme } from '@/styles/themes';
 import { useGetCoin } from '@/hooks/useGetCoins';
 import { useGetVideoURIs } from '@/hooks/useGetVideoURIs';
 import { LinearGradient } from 'expo-linear-gradient';
 import GenericLearningVideoContainer from '@/components/learning/GenericLearningVideoContainer';
+import { SafeAreaView as SafeAreaViewContext } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function CoinPage() {
   const { coinId } = useLocalSearchParams<{ coinId: string }>();
@@ -14,8 +16,38 @@ export default function CoinPage() {
   const styles = makeStyles(theme);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const { data: videos } = useGetVideoURIs();
+  const router = useRouter();
+
+  const [colorCombos, setColorCombos] = useState<{ source: string; destination: string }>({
+    source: theme.colors.primary,
+    destination: '#8A2BE2',
+  });
+
+  const scrollY = useRef(new Animated.Value(0)).current;
+
+  const handleScroll = Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+    useNativeDriver: true,
+  });
 
   const { data: coin, isLoading, error } = useGetCoin(coinId as string);
+
+  useEffect(() => {
+    console.log('coinId', coinId);
+    const combinations = [
+      { source: '#4A90E2', destination: '#8A2BE2' },
+      { source: '#62D6A3', destination: '#00B2FF' },
+      { source: '#FFB74D', destination: '#FF5252' },
+      { source: '#FF4081', destination: '#B388FF' },
+      { source: '#FFD54F', destination: '#FF7043' },
+      { source: '#69F0AE', destination: '#40C4FF' },
+      { source: '#FF8A80', destination: '#E040FB' },
+      { source: '#FDD835', destination: '#FF6F00' },
+      { source: '#64B5F6', destination: '#BA68C8' },
+      { source: '#00E676', destination: '#00B8D4' },
+    ];
+    setColorCombos(combinations[Math.floor(Math.random() * combinations.length)]);
+    console.log('colorCombos', combinations[Math.floor(Math.random() * combinations.length)]);
+  }, [coinId]);
 
   if (isLoading) {
     return <Text>Loading... {coinId}</Text>;
@@ -34,60 +66,104 @@ export default function CoinPage() {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.centerContainer}>
+    <View style={styles.outerContainer}>
+      {/* Background that moves with scroll */}
+      <Animated.View
+        style={[
+          styles.gradientBackground,
+          {
+            transform: [
+              {
+                translateY: scrollY.interpolate({
+                  inputRange: [0, 250],
+                  outputRange: [0, -250],
+                  extrapolate: 'clamp',
+                }),
+              },
+            ],
+          },
+        ]}
+      >
         <LinearGradient
-          colors={[theme.colors.learningBackground, '#8A2BE2']}
+          colors={[colorCombos.source, colorCombos.destination]}
           start={{ x: 0.1, y: 0.1 }}
           end={{ x: 0.9, y: 0.9 }}
-          style={styles.carouselContainer}
+          style={{ width: '100%', height: '100%' }}
+        />
+      </Animated.View>
+
+      {/* Close button - X in top right */}
+      <TouchableOpacity
+        style={styles.closeButton}
+        onPress={() => router.back()}
+        activeOpacity={0.7}
+      >
+        <Ionicons name="close" size={24} color="white" />
+      </TouchableOpacity>
+
+      {/* Main content */}
+      <SafeAreaViewContext style={styles.safeArea} edges={['top']}>
+        <Animated.ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
         >
-          <View style={styles.videoContainerTitle}>
-            <Text style={styles.videoContainerTitleText}>{coin.name} Concepts</Text>
+          <View style={styles.contentContainer}>
+            <View style={styles.centerContainer}>
+              <View style={styles.videoContainerTitle}>
+                <Text style={styles.videoContainerTitleText}>{coin.name} Concepts</Text>
+              </View>
+              <GenericLearningVideoContainer video={videos[0]} scale={0.75} />
+            </View>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Concepts</Text>
+              <Text
+                style={styles.conceptDescription}
+                numberOfLines={showFullDescription ? undefined : 3}
+              >
+                {coin.conceptsDescription}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowFullDescription(!showFullDescription)}
+                style={styles.showMoreButton}
+              >
+                <Text style={styles.showMoreText}>
+                  {showFullDescription ? 'Show Less' : 'Show More'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Token Details</Text>
+
+              <View style={styles.detailsGrid}>
+                <View style={styles.detailCard}>
+                  <Text style={styles.detailLabel}>Utility</Text>
+                  <Text style={styles.detailValue}>{coin.utility}</Text>
+                </View>
+
+                <View style={styles.detailCard}>
+                  <Text style={styles.detailLabel}>Market Cap</Text>
+                  <Text style={styles.detailValue}>${formatNumber(coin.marketCap)}</Text>
+                </View>
+
+                <View style={styles.detailCard}>
+                  <Text style={styles.detailLabel}>Max Supply</Text>
+                  <Text style={styles.detailValue}>{formatNumber(coin.maxSupply)}</Text>
+                </View>
+
+                <View style={styles.detailCard}>
+                  <Text style={styles.detailLabel}>Rate of Increase</Text>
+                  <Text style={styles.detailValue}>{coin.roi}%</Text>
+                </View>
+              </View>
+            </View>
+            <View style={styles.bottomSpacer} />
           </View>
-          <GenericLearningVideoContainer video={videos[0]} scale={0.75} />
-        </LinearGradient>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Concepts</Text>
-        <Text style={styles.conceptDescription} numberOfLines={showFullDescription ? undefined : 3}>
-          {coin.conceptsDescription}
-        </Text>
-        <TouchableOpacity
-          onPress={() => setShowFullDescription(!showFullDescription)}
-          style={styles.showMoreButton}
-        >
-          <Text style={styles.showMoreText}>{showFullDescription ? 'Show Less' : 'Show More'}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Token Details</Text>
-
-        <View style={styles.detailsGrid}>
-          <View style={styles.detailCard}>
-            <Text style={styles.detailLabel}>Utility</Text>
-            <Text style={styles.detailValue}>{coin.utility}</Text>
-          </View>
-
-          <View style={styles.detailCard}>
-            <Text style={styles.detailLabel}>Market Cap</Text>
-            <Text style={styles.detailValue}>${formatNumber(coin.marketCap)}</Text>
-          </View>
-
-          <View style={styles.detailCard}>
-            <Text style={styles.detailLabel}>Max Supply</Text>
-            <Text style={styles.detailValue}>{formatNumber(coin.maxSupply)}</Text>
-          </View>
-
-          <View style={styles.detailCard}>
-            <Text style={styles.detailLabel}>Rate of Increase</Text>
-            <Text style={styles.detailValue}>{coin.roi}%</Text>
-          </View>
-        </View>
-      </View>
-    </ScrollView>
+        </Animated.ScrollView>
+      </SafeAreaViewContext>
+    </View>
   );
 }
 
@@ -103,6 +179,21 @@ const formatNumber = (num: number) => {
 
 const makeStyles = (theme: Theme) =>
   StyleSheet.create({
+    backButton: {
+      position: 'absolute',
+      top: 50, // Adjust based on safe area
+      left: 16,
+      backgroundColor: 'rgba(0,0,0,0.3)', // Semi-transparent
+      borderRadius: 20,
+      width: 40,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 10,
+    },
+    bottomSpacer: {
+      height: '35%',
+    },
     carouselContainer: {
       alignItems: 'center',
       borderRadius: 20,
@@ -113,6 +204,19 @@ const makeStyles = (theme: Theme) =>
     centerContainer: {
       alignItems: 'center',
       justifyContent: 'center',
+      marginBottom: theme.spacing.xl,
+    },
+    closeButton: {
+      position: 'absolute',
+      top: 50, // Adjust based on safe area
+      right: 16, // Changed from left to right
+      backgroundColor: 'rgba(0,0,0,0.3)',
+      borderRadius: 20,
+      width: 40,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 10,
     },
     conceptDescription: {
       color: theme.colors.textSecondary,
@@ -120,9 +224,11 @@ const makeStyles = (theme: Theme) =>
       lineHeight: 24,
     },
     container: {
-      backgroundColor: theme.colors.background,
-      flex: 1,
       paddingHorizontal: 16,
+      zIndex: 1,
+    },
+    contentContainer: {
+      flex: 1,
     },
     detailCard: {
       alignItems: 'center',
@@ -163,6 +269,25 @@ const makeStyles = (theme: Theme) =>
       borderRadius: 12,
       marginBottom: 24,
     },
+    gradientBackground: {
+      height: '35%', // Adjust height as needed
+      left: 0,
+      position: 'absolute',
+      right: 0,
+      top: 0,
+      zIndex: 0,
+    },
+    outerContainer: {
+      backgroundColor: theme.colors.background,
+      flex: 1,
+    },
+    safeArea: {
+      flex: 1,
+      zIndex: 1,
+    },
+    scrollContent: {
+      paddingBottom: 24, // Added padding for bottom spacer
+    },
     section: {
       marginBottom: 24,
     },
@@ -188,10 +313,13 @@ const makeStyles = (theme: Theme) =>
     titleContainer: {
       paddingVertical: 8,
     },
+    topSpacer: {
+      height: '30%', // Reduced slightly to accommodate safe area
+    },
     videoContainerTitle: {
       alignSelf: 'stretch',
       paddingBottom: 10,
-      paddingLeft: 15,
+      paddingLeft: 30,
       paddingTop: 10,
     },
     videoContainerTitleText: {

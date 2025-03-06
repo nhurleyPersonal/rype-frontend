@@ -67,7 +67,7 @@ const CoinListRow = ({ coin }: CoinListRowProps) => {
   }, [isOpen, detailsHeight]);
 
   const handlePress = () => {
-    router.push(`/coin/TestCoinPage`);
+    router.push(`/coin/${coin.name}`);
   };
 
   return (

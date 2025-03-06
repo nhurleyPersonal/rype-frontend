@@ -17,9 +17,6 @@ const CoinTable = ({ maxRows }: { maxRows?: number }) => {
   const limitedData = maxRows ? data.slice(0, maxRows) : data;
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <HeaderComponentSlider />
-      </View>
       <FlatList
         data={limitedData}
         scrollEnabled={false}
@@ -40,12 +37,14 @@ const makeStyles = (theme: Theme) =>
     container: {
       justifyContent: 'center',
       width: '100%',
+      zIndex: 2,
     },
     headerContainer: {
       alignSelf: 'center',
       justifyContent: 'center',
       marginBottom: 3,
       width: '95%',
+      zIndex: 999,
     },
     listContent: {
       marginBottom: 5,

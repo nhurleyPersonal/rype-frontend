@@ -78,6 +78,7 @@ const makeStyles = (theme: Theme) =>
       height: '100%',
       position: 'absolute',
       width: '100%',
+      zIndex: 2,
     },
     container: {
       borderRadius: 10,
@@ -85,16 +86,19 @@ const makeStyles = (theme: Theme) =>
       overflow: 'hidden',
       position: 'relative',
       width: '75%',
+      zIndex: 2,
     },
     fill: {
       borderRadius: 10,
       height: '100%',
+      zIndex: 2,
     },
     segment: {
       backgroundColor: theme.colors.border,
       borderRadius: 10,
       height: '100%',
       overflow: 'hidden',
+      zIndex: 2,
     },
   });
 
