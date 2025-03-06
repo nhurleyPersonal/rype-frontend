@@ -1,39 +1,26 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
+import React from 'react';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from '@/styles/ThemeProvider';
+import { BackgroundProvider } from '../src/providers/BackgroundProvider';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
+  const queryClient = new QueryClient();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider initialThemeType="light" useSystemTheme={false}>
+        <BackgroundProvider backgroundColor="red">
+          <StatusBar translucent backgroundColor="transparent" />
+          <Stack screenOptions={{ contentStyle: { backgroundColor: 'transparent' } }}>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false, title: 'Home' }} />
+            <Stack.Screen name="coin/[coinId]" options={{ title: 'Coin Details' }} />
+            <Stack.Screen name="coin/TestCoinPage" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </BackgroundProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

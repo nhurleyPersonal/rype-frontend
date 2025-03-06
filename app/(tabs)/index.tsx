@@ -1,74 +1,111 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import CoinTable from '@/components/coin_table/CoinTable';
+import { useTheme } from '@/hooks/useTheme';
+import { useGetVideoURIs } from '@/hooks/useGetVideoURIs';
+import { Theme } from '@/styles/themes';
+import { VideoCarousel } from '@/components/learning/VideoCarousel';
+import { LinearGradient } from 'expo-linear-gradient';
+import XpBar from '@/components/learning/XpBar';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+export default function Page() {
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
 
-export default function HomeScreen() {
+  const { data: videos } = useGetVideoURIs();
+
+  if (!videos) {
+    return <Text>Loading...</Text>;
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
+      <View style={styles.videoContainer}>
+        <LinearGradient
+          colors={[theme.colors.learningBackground, '#8A2BE2']}
+          start={{ x: 0.1, y: 0.1 }}
+          end={{ x: 0.9, y: 0.9 }}
+          style={styles.carouselContainer}
+        >
+          <View style={styles.learningHeaderContainer}>
+            <Text style={styles.learningHeader}>Learning Modules</Text>
+          </View>
+          <VideoCarousel videos={videos} />
+        </LinearGradient>
+      </View>
+      <View style={styles.divider} />
+      <View style={styles.tableContainer}>
+        <CoinTable maxRows={5} />
+      </View>
+      <View style={styles.divider} />
+      <View style={styles.xpContainer}>
+        <XpBar currentXP={600} maxXP={1000} />
+      </View>
+    </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+const makeStyles = (theme: Theme) =>
+  StyleSheet.create({
+    carouselContainer: {
+      alignItems: 'center',
+      borderRadius: 20,
+      justifyContent: 'center',
+      padding: 10,
+      width: '95%',
+    },
+    container: {
+      alignItems: 'center',
+      backgroundColor: theme.colors.background,
+      flex: 1,
+      flexDirection: 'column',
+    },
+    divider: {
+      backgroundColor: theme.colors.borderLight,
+      height: 1,
+      marginVertical: theme.spacing.sm,
+      width: '95%',
+    },
+    learningHeader: {
+      color: theme.colors.textPrimaryOpposite || '#FFFFFF',
+      fontSize: 22,
+      fontWeight: 'bold',
+    },
+    learningHeaderContainer: {
+      alignSelf: 'stretch',
+      paddingBottom: 10,
+      paddingLeft: 15,
+      paddingTop: 10,
+    },
+    scrollView: {
+      backgroundColor: theme.colors.transparent,
+      flex: 1,
+    },
+    scrollViewContent: {
+      alignItems: 'center',
+      backgroundColor: theme.colors.transparent,
+      paddingBottom: 80,
+    },
+    tableContainer: {
+      width: '100%',
+    },
+    title: {
+      color: theme.colors.text,
+      fontSize: 28,
+      fontWeight: 'bold',
+      paddingHorizontal: 15,
+    },
+    titleContainer: {
+      width: '95%',
+    },
+    videoContainer: {
+      alignItems: 'center',
+      backgroundColor: theme.colors.transparent,
+      paddingVertical: 10,
+      width: '100%',
+    },
+    xpContainer: {
+      alignItems: 'center',
+      padding: 10,
+      width: '95%',
+    },
+  });

@@ -1,0 +1,13 @@
+{
+  "folders": [
+    {
+      "path": ".",
+    },
+    {
+      "path": "../temp",
+    },
+  ],
+  "settings": {
+    "git.ignoreLimitWarning": true,
+  },
+}
