@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Animated, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme';
 import { Theme } from '@/styles/themes';
@@ -139,22 +139,50 @@ export default function CoinPage() {
 
               <View style={styles.detailsGrid}>
                 <View style={styles.detailCard}>
-                  <Text style={styles.detailLabel}>Utility</Text>
+                  <View style={styles.detailHeader}>
+                    <View style={styles.detailHeaderIcon}>
+                      <Ionicons name="apps-outline" size={22} color={theme.colors.text} />
+                    </View>
+                    <View style={styles.detailHeaderLabel}>
+                      <Text style={styles.detailLabel}>Utility</Text>
+                    </View>
+                  </View>
                   <Text style={styles.detailValue}>{coin.utility}</Text>
                 </View>
 
                 <View style={styles.detailCard}>
-                  <Text style={styles.detailLabel}>Market Cap</Text>
+                  <View style={styles.detailHeader}>
+                    <View style={styles.detailHeaderIcon}>
+                      <Ionicons name="cash-outline" size={22} color={theme.colors.text} />
+                    </View>
+                    <View style={styles.detailHeaderLabel}>
+                      <Text style={styles.detailLabel}>Market Cap</Text>
+                    </View>
+                  </View>
                   <Text style={styles.detailValue}>${formatNumber(coin.marketCap)}</Text>
                 </View>
 
                 <View style={styles.detailCard}>
-                  <Text style={styles.detailLabel}>Max Supply</Text>
+                  <View style={styles.detailHeader}>
+                    <View style={styles.detailHeaderIcon}>
+                      <Ionicons name="wallet-outline" size={22} color={theme.colors.text} />
+                    </View>
+                    <View style={styles.detailHeaderLabel}>
+                      <Text style={styles.detailLabel}>Max Supply</Text>
+                    </View>
+                  </View>
                   <Text style={styles.detailValue}>{formatNumber(coin.maxSupply)}</Text>
                 </View>
 
                 <View style={styles.detailCard}>
-                  <Text style={styles.detailLabel}>Rate of Increase</Text>
+                  <View style={styles.detailHeader}>
+                    <View style={styles.detailHeaderIcon}>
+                      <Ionicons name="trending-up-outline" size={22} color={theme.colors.text} />
+                    </View>
+                    <View style={styles.detailHeaderLabel}>
+                      <Text style={styles.detailLabel}>Rate of Increase</Text>
+                    </View>
+                  </View>
                   <Text style={styles.detailValue}>{coin.roi}%</Text>
                 </View>
               </View>
@@ -180,15 +208,15 @@ const formatNumber = (num: number) => {
 const makeStyles = (theme: Theme) =>
   StyleSheet.create({
     backButton: {
-      position: 'absolute',
-      top: 50, // Adjust based on safe area
-      left: 16,
+      alignItems: 'center',
       backgroundColor: 'rgba(0,0,0,0.3)', // Semi-transparent
       borderRadius: 20,
-      width: 40,
       height: 40,
-      alignItems: 'center',
       justifyContent: 'center',
+      left: 16,
+      position: 'absolute',
+      top: 50, // Adjust based on safe area
+      width: 40,
       zIndex: 10,
     },
     bottomSpacer: {
@@ -207,15 +235,15 @@ const makeStyles = (theme: Theme) =>
       marginBottom: theme.spacing.xl,
     },
     closeButton: {
-      position: 'absolute',
-      top: 50, // Adjust based on safe area
-      right: 16, // Changed from left to right
+      alignItems: 'center',
       backgroundColor: 'rgba(0,0,0,0.3)',
       borderRadius: 20,
-      width: 40,
       height: 40,
-      alignItems: 'center',
       justifyContent: 'center',
+      position: 'absolute',
+      right: 16, // Changed from left to right
+      top: 50, // Adjust based on safe area
+      width: 40,
       zIndex: 10,
     },
     conceptDescription: {
@@ -241,10 +269,27 @@ const makeStyles = (theme: Theme) =>
       padding: 16,
       width: '40%',
     },
+    detailHeader: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 8,
+      width: '100%',
+    },
+    detailHeaderIcon: {
+      alignItems: 'center',
+      padding: 4,
+      width: '40%',
+    },
+    detailHeaderLabel: {
+      alignItems: 'center',
+      padding: 4,
+      width: '60%',
+    },
     detailLabel: {
       color: theme.colors.textSecondary,
-      fontSize: 14,
-      marginBottom: 8,
+      fontSize: 12,
+      textAlign: 'center',
     },
     detailValue: {
       color: theme.colors.text,
@@ -315,6 +360,15 @@ const makeStyles = (theme: Theme) =>
     },
     topSpacer: {
       height: '30%', // Reduced slightly to accommodate safe area
+    },
+    utilityContainer: {
+      alignItems: 'center',
+      flexDirection: 'row',
+    },
+    utilityIcon: {
+      height: 20,
+      marginRight: 8,
+      width: 20,
     },
     videoContainerTitle: {
       alignSelf: 'stretch',

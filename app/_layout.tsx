@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/styles/ThemeProvider';
-import { SafeAreaView } from 'react-native';
+
 export default function RootLayout() {
   const queryClient = new QueryClient();
 
